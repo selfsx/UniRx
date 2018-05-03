@@ -1,11 +1,11 @@
-#if UNITY_EDITOR
-
-using UnityEditor;
-using UnityEditor.Callbacks;
 using UnityEngine;
 
 namespace UniRx
 {
+
+#if UNITY_EDITOR
+using UnityEditor;
+using UnityEditor.Callbacks;
     [InitializeOnLoad]
     public class ScenePlaybackDetector
     {
@@ -79,6 +79,15 @@ namespace UniRx
             };
         }
     }
+#else 
+    public class ScenePlaybackDetector {
+        public static bool IsPlaying {
+            get {
+                return false;
+            }
+        }
+    }    
+#endif
+    
 }
 
-#endif

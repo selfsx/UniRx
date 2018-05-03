@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using UniRx.InternalUtil;
+using UniRx.Utils;
 using UnityEngine;
 
 namespace UniRx
@@ -34,7 +35,7 @@ namespace UniRx
 
         public static CullingMode cullingMode = CullingMode.Self;
 
-#if UNITY_EDITOR
+#region EditorThreadDispatcher
 
         // In UnityEditor's EditorMode can't instantiate and work MonoBehaviour.Update.
         // EditorThreadDispatcher use EditorApplication.update instead of MonoBehaviour.Update.
@@ -64,7 +65,24 @@ namespace UniRx
 
             EditorThreadDispatcher()
             {
-                UnityEditor.EditorApplication.update += Update;
+                if (RichUnity.IsAnyEditor()) 
+                {
+                    var assembly = Assembly.Load("UnityEditor");
+                    var editorApplicationType = assembly.GetType("UnityEditor.EditorApplication");
+
+                    if (null != editorApplicationType) 
+                    {
+                        var updateField = editorApplicationType.GetField("update");
+                        var updateDelegate = (MulticastDelegate) updateField.GetValue(null);
+                        var delegateType = updateDelegate.GetType();
+                        var handler = GetType().GetMethod("Update", BindingFlags.NonPublic | BindingFlags.Instance);
+
+                        if (null != handler) 
+                        {
+                            updateField.SetValue(null, Delegate.CreateDelegate(delegateType, this, handler));
+                        }
+                    }
+                }
             }
 
             public void Enqueue(Action<object> action, object state)
@@ -200,15 +218,15 @@ namespace UniRx
             }
         }
 
-#endif
+#endregion
 
         /// <summary>Dispatch Asyncrhonous action.</summary>
         public static void Post(Action<object> action, object state)
         {
-#if UNITY_EDITOR
-            if (!ScenePlaybackDetector.IsPlaying) { EditorThreadDispatcher.Instance.Enqueue(action, state); return; }
-
-#endif
+            if (RichUnity.IsAnyEditor()) 
+            {
+                if (!ScenePlaybackDetector.IsPlaying) { EditorThreadDispatcher.Instance.Enqueue(action, state); return; }
+            }
 
             var dispatcher = Instance;
             if (!isQuitting && !object.ReferenceEquals(dispatcher, null))
@@ -220,9 +238,10 @@ namespace UniRx
         /// <summary>Dispatch Synchronous action if possible.</summary>
         public static void Send(Action<object> action, object state)
         {
-#if UNITY_EDITOR
-            if (!ScenePlaybackDetector.IsPlaying) { EditorThreadDispatcher.Instance.Enqueue(action, state); return; }
-#endif
+            if (RichUnity.IsAnyEditor()) 
+            {
+                if (!ScenePlaybackDetector.IsPlaying) { EditorThreadDispatcher.Instance.Enqueue(action, state); return; }
+            }
 
             if (mainThreadToken != null)
             {
@@ -248,9 +267,10 @@ namespace UniRx
         /// <summary>Run Synchronous action.</summary>
         public static void UnsafeSend(Action action)
         {
-#if UNITY_EDITOR
-            if (!ScenePlaybackDetector.IsPlaying) { EditorThreadDispatcher.Instance.UnsafeInvoke(action); return; }
-#endif
+            if (RichUnity.IsAnyEditor()) 
+            {
+                if (!ScenePlaybackDetector.IsPlaying) { EditorThreadDispatcher.Instance.UnsafeInvoke(action); return; }
+            }
 
             try
             {
@@ -269,9 +289,10 @@ namespace UniRx
         /// <summary>Run Synchronous action.</summary>
         public static void UnsafeSend<T>(Action<T> action, T state)
         {
-#if UNITY_EDITOR
-            if (!ScenePlaybackDetector.IsPlaying) { EditorThreadDispatcher.Instance.UnsafeInvoke(action, state); return; }
-#endif
+            if (RichUnity.IsAnyEditor()) 
+            {
+                if (!ScenePlaybackDetector.IsPlaying) { EditorThreadDispatcher.Instance.UnsafeInvoke(action, state); return; }
+            }
 
             try
             {
@@ -296,10 +317,11 @@ namespace UniRx
             }
             else
             {
-#if UNITY_EDITOR
-                // call from other thread
-                if (!ScenePlaybackDetector.IsPlaying) { EditorThreadDispatcher.Instance.PseudoStartCoroutine(routine); return; }
-#endif
+                if (RichUnity.IsAnyEditor()) 
+                {
+                    // call from other thread
+                    if (!ScenePlaybackDetector.IsPlaying) { EditorThreadDispatcher.Instance.PseudoStartCoroutine(routine); return; }
+                }
 
                 var dispatcher = Instance;
                 if (!isQuitting && !object.ReferenceEquals(dispatcher, null))
@@ -318,9 +340,10 @@ namespace UniRx
 
         public static void StartUpdateMicroCoroutine(IEnumerator routine)
         {
-#if UNITY_EDITOR
-            if (!ScenePlaybackDetector.IsPlaying) { EditorThreadDispatcher.Instance.PseudoStartCoroutine(routine); return; }
-#endif
+            if (RichUnity.IsAnyEditor()) 
+            {
+                if (!ScenePlaybackDetector.IsPlaying) { EditorThreadDispatcher.Instance.PseudoStartCoroutine(routine); return; }                
+            }
 
             var dispatcher = Instance;
             if (dispatcher != null)
@@ -331,9 +354,10 @@ namespace UniRx
 
         public static void StartFixedUpdateMicroCoroutine(IEnumerator routine)
         {
-#if UNITY_EDITOR
-            if (!ScenePlaybackDetector.IsPlaying) { EditorThreadDispatcher.Instance.PseudoStartCoroutine(routine); return; }
-#endif
+            if (RichUnity.IsAnyEditor()) 
+            {
+                if (!ScenePlaybackDetector.IsPlaying) { EditorThreadDispatcher.Instance.PseudoStartCoroutine(routine); return; }
+            }
 
             var dispatcher = Instance;
             if (dispatcher != null)
@@ -344,9 +368,10 @@ namespace UniRx
 
         public static void StartEndOfFrameMicroCoroutine(IEnumerator routine)
         {
-#if UNITY_EDITOR
-            if (!ScenePlaybackDetector.IsPlaying) { EditorThreadDispatcher.Instance.PseudoStartCoroutine(routine); return; }
-#endif
+            if (RichUnity.IsAnyEditor()) 
+            {
+                if (!ScenePlaybackDetector.IsPlaying) { EditorThreadDispatcher.Instance.PseudoStartCoroutine(routine); return; }
+            }
 
             var dispatcher = Instance;
             if (dispatcher != null)
@@ -357,9 +382,10 @@ namespace UniRx
 
         new public static Coroutine StartCoroutine(IEnumerator routine)
         {
-#if UNITY_EDITOR
-            if (!ScenePlaybackDetector.IsPlaying) { EditorThreadDispatcher.Instance.PseudoStartCoroutine(routine); return null; }
-#endif
+            if (RichUnity.IsAnyEditor()) 
+            {
+                if (!ScenePlaybackDetector.IsPlaying) { EditorThreadDispatcher.Instance.PseudoStartCoroutine(routine); return null; }
+            }
 
             var dispatcher = Instance;
             if (dispatcher != null)
@@ -429,10 +455,12 @@ namespace UniRx
         {
             if (!initialized)
             {
-#if UNITY_EDITOR
-                // Don't try to add a GameObject when the scene is not playing. Only valid in the Editor, EditorView.
-                if (!ScenePlaybackDetector.IsPlaying) return;
-#endif
+                if (RichUnity.IsAnyEditor()) 
+                {
+                    // Don't try to add a GameObject when the scene is not playing. Only valid in the Editor, EditorView.
+                    if (!ScenePlaybackDetector.IsPlaying) return;                    
+                }
+                
                 MainThreadDispatcher dispatcher = null;
 
                 try

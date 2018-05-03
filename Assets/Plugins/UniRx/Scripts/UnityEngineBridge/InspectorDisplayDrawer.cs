@@ -66,7 +66,6 @@ namespace UniRx
     // If you want to customize other specialized ReactiveProperty
     // [UnityEditor.CustomPropertyDrawer(typeof(YourSpecializedReactiveProperty))]
     // public class ExtendInspectorDisplayDrawer : InspectorDisplayDrawer { } 
-
     [UnityEditor.CustomPropertyDrawer(typeof(InspectorDisplayAttribute))]
     [UnityEditor.CustomPropertyDrawer(typeof(IntReactiveProperty))]
     [UnityEditor.CustomPropertyDrawer(typeof(LongReactiveProperty))]
@@ -287,6 +286,8 @@ namespace UniRx
             return fi.GetCustomAttributes(false).OfType<RangeReactivePropertyAttribute>().FirstOrDefault();
         }
     }
+    
+#endif
 
 #endif
 }
