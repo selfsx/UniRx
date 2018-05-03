@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>UniRx</RootNamespace>
-    <AssemblyName>UniRx</AssemblyName>
+    <AssemblyName>UniRxUniversal</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>Unity Full v3.5</TargetFrameworkProfile>
