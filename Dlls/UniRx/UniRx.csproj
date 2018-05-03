@@ -733,6 +733,9 @@
     <Compile Include="..\..\Assets\Plugins\UniRx\Scripts\UnityEngineBridge\UnityUIComponentExtensions.cs">
       <Link>UnityEngineBridge\UnityUIComponentExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\..\Assets\Plugins\UniRx\Scripts\UnityEngineBridge\Utils\EditorReflect.cs">
+      <Link>UnityEngineBridge\Utils\EditorReflect.cs</Link>
+    </Compile>
     <Compile Include="..\..\Assets\Plugins\UniRx\Scripts\UnityEngineBridge\Utils\RichUnity.cs">
       <Link>UnityEngineBridge\Utils\RichUnity.cs</Link>
     </Compile>

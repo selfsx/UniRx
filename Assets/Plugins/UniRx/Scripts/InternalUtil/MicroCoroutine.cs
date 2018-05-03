@@ -73,13 +73,14 @@ namespace UniRx.InternalUtil
                             }
                             else
                             {
-#if UNITY_EDITOR
+
+                                /* FIXME: Validation by reflection.
                                 // validation only on Editor.
                                 if (coroutine.Current != null)
                                 {
                                     UnityEngine.Debug.LogWarning("MicroCoroutine supports only yield return null. return value = " + coroutine.Current);
                                 }
-#endif
+                                */
 
                                 continue; // next i 
                             }
@@ -111,13 +112,14 @@ namespace UniRx.InternalUtil
                                 }
                                 else
                                 {
-#if UNITY_EDITOR
+
+                                    /* FIXME: Validation by reflection.
                                     // validation only on Editor.
                                     if (fromTail.Current != null)
                                     {
-                                        UnityEngine.Debug.LogWarning("MicroCoroutine supports only yield return null. return value = " + coroutine.Current);
+                                        // UnityEngine.Debug.LogWarning("MicroCoroutine supports only yield return null. return value = " + coroutine.Current);
                                     }
-#endif
+                                    */
 
                                     // swap
                                     coroutines[i] = fromTail;
