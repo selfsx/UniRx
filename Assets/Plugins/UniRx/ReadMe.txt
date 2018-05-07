@@ -4,6 +4,36 @@ Created by Yoshifumi Kawai(neuecc)
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/neuecc/UniRx?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
+5.5.0-livarary UniRx fork notes
+---
+
+This fork makes simple .dll assembly from UniRx Unity plugin. To make it work follow instructions below:
+
+1. Put UniRxUniversal.dll assembly to your project.
+2. Add Editor class for initialization to your Editor sources folder with contents like below:
+
+```csharp
+using UniRx;
+using UnityEditor;
+using UnityEditor.Callbacks;
+
+namespace YourProjectNamespace {
+  [InitializeOnLoad]
+  public class UniRxInitializer {
+    static UniRxInitializer() {
+      ScenePlaybackDetector.InitializeOnLoad();
+    }
+
+    [DidReloadScripts]
+    public static void DidReloadScripts() {
+      ScenePlaybackDetector.DidReloadScripts();
+    }
+  }
+}
+```
+
+3. Everything should work fine. All UniRx functionality is available.
+
 What is UniRx?
 ---
 UniRx (Reactive Extensions for Unity) is a reimplementation of the .NET Reactive Extensions. The Official Rx implementation is great but doesn't work on Unity and has issues with iOS IL2CPP compatibility. This library fixes those issues and adds some specific utilities for Unity. Supported platforms are PC/Mac/Android/iOS/WP8/WindowsStore/etc and the library is fully supported on both Unity 5 and 4.6.   
