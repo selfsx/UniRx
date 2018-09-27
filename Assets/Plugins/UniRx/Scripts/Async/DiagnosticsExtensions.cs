@@ -66,7 +66,7 @@ namespace UniRx.Async
                 s = s + " ---> " + exception.InnerException.ToString() + Environment.NewLine + "   Exception_EndOfInnerExceptionStack";
             }
 
-            string stackTrace = new StackTrace(exception).CleanupAsyncStackTrace();
+            string stackTrace = DiagnosticsExtensions.CleanupAsyncStackTrace(new StackTrace(exception));
             if (stackTrace != null)
             {
                 s += Environment.NewLine + stackTrace;

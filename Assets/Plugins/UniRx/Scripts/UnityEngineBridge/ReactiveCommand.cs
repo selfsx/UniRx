@@ -189,7 +189,7 @@ namespace UniRx
 
             newPromise = new ReactivePropertyReusablePromise<T>(cancellationToken);
             removablePromises.Add(cancellationToken, newPromise);
-            cancellationToken.RegisterWithoutCaptureExecutionContext(Callback, Tuple.Create(this, newPromise));
+            CancellationTokenExtensions.RegisterWithoutCaptureExecutionContext(cancellationToken, Callback, Tuple.Create(this, newPromise));
 
             return newPromise.Task;
         }
@@ -417,7 +417,7 @@ namespace UniRx
 
             newPromise = new ReactivePropertyReusablePromise<T>(cancellationToken);
             removablePromises.Add(cancellationToken, newPromise);
-            cancellationToken.RegisterWithoutCaptureExecutionContext(Callback, Tuple.Create(this, newPromise));
+            CancellationTokenExtensions.RegisterWithoutCaptureExecutionContext(cancellationToken, Callback, Tuple.Create(this, newPromise));
 
             return newPromise.Task;
         }

@@ -7,13 +7,12 @@ using System.Diagnostics;
 using System.Threading;
 using UniRx.Async;
 using UniRx.Async.Internal;
+using UniRx.Async.Utils;
 
 namespace Plugins.UniRx.Scripts.Async.Internal
 {
     public static class TaskTracker
     {
-
-
         static int trackingId = 0;
 
         public const string EnableAutoReloadKey = "UniTaskTrackerWindow_EnableAutoReloadKey";
@@ -29,7 +28,7 @@ namespace Plugins.UniRx.Scripts.Async.Internal
                 set
                 {
                     enableAutoReload = value;
-                    UnityEditor.EditorPrefs.SetBool(EnableAutoReloadKey, value);
+                    EditorReflect.SetBool(EnableAutoReloadKey, value);
                 }
             }
 
@@ -40,7 +39,7 @@ namespace Plugins.UniRx.Scripts.Async.Internal
                 set
                 {
                     enableTracking = value;
-                    UnityEditor.EditorPrefs.SetBool(EnableTrackingKey, value);
+                    EditorReflect.SetBool(EnableTrackingKey, value);
                 }
             }
 
@@ -51,7 +50,7 @@ namespace Plugins.UniRx.Scripts.Async.Internal
                 set
                 {
                     enableStackTrace = value;
-                    UnityEditor.EditorPrefs.SetBool(EnableStackTraceKey, value);
+                    EditorReflect.SetBool(EnableStackTraceKey, value);
                 }
             }
         }
@@ -62,46 +61,46 @@ namespace Plugins.UniRx.Scripts.Async.Internal
 
         static readonly WeakDictionary<IAwaiter, (int trackingId, DateTime addTime, string stackTrace)> tracking = new WeakDictionary<IAwaiter, (int trackingId, DateTime addTime, string stackTrace)>();
 
-        [Conditional("UNITY_EDITOR")]
+
+
         public static void TrackActiveTask(IAwaiter task, int skipFrame = 1)
         {
-            
-            dirty = true;
-            if (!EditorEnableState.EnableTracking) return;
-            var stackTrace = EditorEnableState.EnableStackTrace ? new StackTrace(skipFrame, true).CleanupAsyncStackTrace() : "";
-            tracking.TryAdd(task, (Interlocked.Increment(ref trackingId), DateTime.UtcNow, stackTrace));
-
+            if (RichUnity.IsAnyEditor())
+            {
+                dirty = true;
+                if (!EditorEnableState.EnableTracking) return;
+                var stackTrace = EditorEnableState.EnableStackTrace ? DiagnosticsExtensions.CleanupAsyncStackTrace(new StackTrace(skipFrame, true)) : "";
+                tracking.TryAdd(task, (Interlocked.Increment(ref trackingId), DateTime.UtcNow, stackTrace));
+            }
         }
 
-        [Conditional("UNITY_EDITOR")]
+
         public static void TrackActiveTask(IAwaiter task, string stackTrace)
         {
-#if UNITY_EDITOR
-            dirty = true;
-            if (!EditorEnableState.EnableTracking) return;
-            var success = tracking.TryAdd(task, (Interlocked.Increment(ref trackingId), DateTime.UtcNow, stackTrace));
-#endif
+            if (RichUnity.IsAnyEditor())
+            {
+                dirty = true;
+                if (!EditorEnableState.EnableTracking) return;
+                var success = tracking.TryAdd(task, (Interlocked.Increment(ref trackingId), DateTime.UtcNow, stackTrace));
+            }
         }
 
-        public static string CaptureStackTrace(int skipFrame)
-        {
-#if UNITY_EDITOR
-            if (!EditorEnableState.EnableTracking) return "";
-            var stackTrace = EditorEnableState.EnableStackTrace ? new StackTrace(skipFrame + 1, true).CleanupAsyncStackTrace() : "";
-            return stackTrace;
-#else
+        public static string CaptureStackTrace(int skipFrame) {
+            if (RichUnity.IsAnyEditor()) {
+                if (!EditorEnableState.EnableTracking) return "";
+                var stackTrace = EditorEnableState.EnableStackTrace ? DiagnosticsExtensions.CleanupAsyncStackTrace(new StackTrace(skipFrame + 1, true)) : "";
+                return stackTrace;
+            }
+
             return null;
-#endif
         }
 
-        [Conditional("UNITY_EDITOR")]
-        public static void RemoveTracking(IAwaiter task)
-        {
-#if UNITY_EDITOR
-            dirty = true;
-            if (!EditorEnableState.EnableTracking) return;
-            var success = tracking.TryRemove(task);
-#endif
+        public static void RemoveTracking(IAwaiter task) {
+            if (RichUnity.IsAnyEditor()) {
+                dirty = true;
+                if (!EditorEnableState.EnableTracking) return;
+                var success = tracking.TryRemove(task);
+            }
         }
 
         static bool dirty;

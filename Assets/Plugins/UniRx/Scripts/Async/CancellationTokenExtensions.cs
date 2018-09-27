@@ -18,7 +18,7 @@ namespace UniRx.Async
             }
 
             var promise = new UniTaskCompletionSource<AsyncUnit>();
-            return (promise.Task, cts.RegisterWithoutCaptureExecutionContext(cancellationTokenCallback, promise));
+            return (promise.Task, CancellationTokenExtensions.RegisterWithoutCaptureExecutionContext(cts, cancellationTokenCallback, promise));
         }
 
         static void Callback(object state)
