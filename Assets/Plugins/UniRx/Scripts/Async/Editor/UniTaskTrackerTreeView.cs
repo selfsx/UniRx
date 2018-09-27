@@ -10,6 +10,7 @@ using System;
 using UnityEditor.IMGUI.Controls;
 using UniRx.Async.Internal;
 using System.Text;
+using Plugins.UniRx.Scripts.Async.Internal;
 
 namespace UniRx.Async.Editor
 {

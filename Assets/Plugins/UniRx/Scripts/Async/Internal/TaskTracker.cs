@@ -5,12 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using UniRx.Async;
+using UniRx.Async.Internal;
 
-namespace UniRx.Async.Internal
+namespace Plugins.UniRx.Scripts.Async.Internal
 {
     public static class TaskTracker
     {
-#if UNITY_EDITOR
+
 
         static int trackingId = 0;
 
@@ -54,7 +56,6 @@ namespace UniRx.Async.Internal
             }
         }
 
-#endif
 
 
         static List<KeyValuePair<IAwaiter, (int trackingId, DateTime addTime, string stackTrace)>> listPool = new List<KeyValuePair<IAwaiter, (int trackingId, DateTime addTime, string stackTrace)>>();
@@ -64,12 +65,12 @@ namespace UniRx.Async.Internal
         [Conditional("UNITY_EDITOR")]
         public static void TrackActiveTask(IAwaiter task, int skipFrame = 1)
         {
-#if UNITY_EDITOR
+            
             dirty = true;
             if (!EditorEnableState.EnableTracking) return;
             var stackTrace = EditorEnableState.EnableStackTrace ? new StackTrace(skipFrame, true).CleanupAsyncStackTrace() : "";
             tracking.TryAdd(task, (Interlocked.Increment(ref trackingId), DateTime.UtcNow, stackTrace));
-#endif
+
         }
 
         [Conditional("UNITY_EDITOR")]

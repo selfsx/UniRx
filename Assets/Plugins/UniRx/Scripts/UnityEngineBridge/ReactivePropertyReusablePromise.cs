@@ -4,6 +4,7 @@
 
 using System;
 using System.Threading;
+using Plugins.UniRx.Scripts.Async.Internal;
 using UniRx.Async;
 using UniRx.Async.Internal;
 

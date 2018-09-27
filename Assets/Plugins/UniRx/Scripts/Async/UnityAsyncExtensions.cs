@@ -3,6 +3,7 @@
 
 using System;
 using System.Threading;
+using Plugins.UniRx.Scripts.Async.Internal;
 using UniRx.Async.Internal;
 using UnityEngine;
 using UnityEngine.Networking;

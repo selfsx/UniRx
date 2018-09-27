@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Runtime.ExceptionServices;
 using System.Threading;
+using Plugins.UniRx.Scripts.Async.Internal;
 using UniRx.Async.Internal;
 
 namespace UniRx.Async

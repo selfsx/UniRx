@@ -4,6 +4,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using Plugins.UniRx.Scripts.Async.Internal;
 using UniRx.Async.Internal;
 using UnityEngine;
 using UnityEngine.Events;
